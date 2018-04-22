@@ -6,78 +6,24 @@ import JSONTree from 'react-json-tree'
 //import Sound from 'react-sound';
 import Wavesurfer from 'react-wavesurfer'
 // import jsmediatags from 'jsmediatags'
-// import ReactHowler from 'react-howler'
+import ReactHowler from 'react-howler'
 
-import TimeLine from 'react-wavesurfer'///plugins/timeline'
-import MiniMap from 'react-wavesurfer'///plugins/timeline'
+// import TimeLine from 'react-wavesurfer'///plugins/timeline'
+// import MiniMap from 'react-wavesurfer'///plugins/timeline'
 import SoundTrackLine from './SoundTrackLine'
 
 // let styles = require('./Counter.scss');
 
+import {observable} from 'mobx'
+import {observer} from 'mobx-react'
+
 var jsmediatags = require("jsmediatags")
 
-import {action,observable} from 'mobx';
-import {observer} from 'mobx-react';
-import DevTools from 'mobx-react-devtools';
-//import { FormState, FieldState } from 'formstate';
 
-import MCount from './MobxCount'
+class AppState{
+  @observable currentTime=0;
+}
 
-var appState = observable({
-    timer: 0
-});
-appState.resetTimer = action(function reset() {
-    appState.timer = 0;
-});
-
-setInterval(action(function tick() {
-    appState.timer += 1;
-    // console.log('inc',appState.timer)
-}), 1000);
-
-// class AppState {
-//  timer = 0;
-//   // @observable currentTime:string;
-//   // @observable tagJSON:any={title:"No Song"}
-// constructor() {
-//         setInterval(() => {
-//             console.log('tmr',this.timer)
-//             this.timer += 1;
-//         }, 1000);
-//     }
-//
-//     resetTimer() {
-//         this.timer = 0;
-//     }
-// }
-
-// const appState=observable(new AppState())
-
-
-// class TimerView extends Component {
-//     render() {
-//         return (
-//             <div>
-//                 <button onClick={this.onReset}>
-//                     Seconds passed: {this.props.appState.timer}
-//                 </button>
-//                 <DevTools />
-//             </div>
-//         );
-//      }
-//
-//      onReset = () => {
-//          this.props.appState.resetTimer();
-//      }
-// };
-
-
-// const TimerView = observer((props) =>{return
-//     <span>Seconds passed: { props.appState.timer } </span>}
-// );
-
-
-// const TimerView=observable.box(TimerView2)
 
 @observer
 class TimeView extends Component{
@@ -91,62 +37,6 @@ class TimeView extends Component{
   }
 }
 
-const MCount2=observer(class MCount1 extends Component{
-  render(){
-  return(
-    <div>
-      {this.props.appState.timer}
-    </div>
-  )
-}
-})
-
-
-
-//const appState = new AppState();
-
-
-// class DemoState {
-//   // Create a field
-//   username = new FieldState('').validators((val) => !val && 'username required');
-//
-//   // Compose fields into a form
-//   form = new FormState({
-//     username: this.username
-//   });
-//
-//   onSubmit = async () => {
-//     //  Validate all fields
-//     const res = await this.form.validate();
-//     // If any errors you would know
-//     if (res.hasError) {
-//       console.log(this.form.error);
-//       return;
-//     }
-//     // Yay .. all good. Do what you want with it
-//     console.log(this.username.$); // Validated value!
-//   };
-// }
-
-//@observer
-export class Demo extends Component<{},{}> {
-  data = new DemoState();
-  render(){
-    const data = this.data;
-    return (
-// onSubmit={data.onSubmit}>
-      <form>
-        <input
-          type="text"
-          value={data.username.value}
-          // onChange={(e)=>data.username.onChange(e.target.value)}
-        />
-        <p>{data.username.error}</p>
-        <p>{data.form.error}</p>
-      </form>
-    );
-  }
-}
 
 
 export class SoundTrackList extends Component {
@@ -222,7 +112,7 @@ export class SoundTrackList extends Component {
       jsmediatags.read(this.state.rows[ind].path, {
         onSuccess: function(tag:any) {
           console.log(tag);
-          appState.tagJSON=tag
+          //appState.tagJSON=tag
         },
         onError: function(error:any) {
           console.log(':(', error.type, error.info);
@@ -344,15 +234,7 @@ export class SoundTrackList extends Component {
     return (
       <div>
 
-      <MCount appState={appState} />
-      <MCount appState={appState} />
-      <MCount appState={appState} />
-      <MCount2 appState={appState} />)}
-
-            {/* <ReactHowler
-            src={['http://goldfirestudios.com/proj/howlerjs/sound.ogg'] }
-            /> */}
-
+        <TimeView appState={AppState} />
 
         {/* <Demo /> */}
         <form onSubmit={this.searchOnSubmit}>
@@ -371,7 +253,7 @@ export class SoundTrackList extends Component {
           {
             this.state && this.state.trackFullTime ?
               <div style={{display:"flex"}}>
-                <TimeView appState={appState} /> &nbsp; of &nbsp;
+                {/*<TimeView appState={appState} /> &nbsp; of &nbsp;*/}
             {this.state.trackFullTime}
               </div>
               : null
@@ -382,8 +264,15 @@ export class SoundTrackList extends Component {
 
 
         {this.state && this.state.cName ?
-          <div className="example col-xs-12">
+          <div>
 
+          <ReactHowler
+         src={[this.state.cName] }
+         playing={this.state.playing}
+         onEnd={this.handleFinishedPlaying}
+         />
+
+{/*
             <Wavesurfer
               audioFile={this.state.cName}
               pos={0}
@@ -400,7 +289,7 @@ export class SoundTrackList extends Component {
               <MiniMap options={minimapOptions} />
               <TimeLine options={timelineOptions} />
             </Wavesurfer>
-
+*/}
             {/* <Sound
               url={this.state.cName}
               playStatus={this.state.soundStatus}
