@@ -4,13 +4,11 @@
       "targets": { "node": 7 },
       "useBuiltIns": true
     }],
-    "react",
-    "es2015",
-    "stage-2",
+    "stage-1",
+    "react"
   ],
   "plugins": ["transform-decorators-legacy",
-    "add-module-exports"
-              ],
+    "add-module-exports"],
   "env": {
     "production": {
       "presets": ["react-optimize"],
@@ -18,6 +16,7 @@
     },
     "development": {
       "plugins": [
+        "transform-decorators-legacy",
         "transform-class-properties",
         "transform-es2015-classes",
         ["flow-runtime", {
