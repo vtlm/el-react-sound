@@ -60,7 +60,7 @@ export class SoundTrackList extends Component {
     //soundStatus: Sound.status.STOPPED,
     showAttempted: true,
     showPlayed: true,
-    audioLib: 'webAudio',
+    audioLib: 'howler',
     playing: false,
     searchStr: 'LZ'
     // tagJSON: { tit: "No Song" }
@@ -344,12 +344,12 @@ export class SoundTrackList extends Component {
 
     return (
       <div>
-
+	    {/*
         <VictoryBar
           data={this.state.data || [{ x: 2, y: 6 }, { x: 6, y: 4 }]}
         />
-        {/*<VictoryPie />*/}
-
+        <VictoryPie />
+	     */}
         {/*<WebAudioPlayer zom={'sss'} cbSetData={this.setData} />*/}
 
 
@@ -417,14 +417,13 @@ export class SoundTrackList extends Component {
         {this.state && this.state.cName ? (
           <div>
             {this.state.audioLib == 'webAudio' ? (
-              // {/*<ReactHowler
-              //   src={[this.state.cName]}
-              //   playing={this.state.playing}
-              //   onLoad={this.handleOnLoad}
-              //   onEnd={this.handleFinishedPlaying}
-              //   ref={ref => (this.player = ref)}
-              // />*/}
-              <WebAudioPlayer fileName={this.state.cName} cbSetData={this.setData}/>
+              <eactHowler
+                src={[this.state.cName]}
+                playing={this.state.playing}
+                onLoad={this.handleOnLoad}
+                onEnd={this.handleFinishedPlaying}
+                ref={ref => (this.player = ref)}
+              />
             ) : null}
             {this.state.audioLib == 'howler' ? (
               <ReactHowler

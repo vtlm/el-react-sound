@@ -1,0 +1,109 @@
+import React, { Component } from 'react'
+
+class WebAudioPlayer extends Component {
+
+  loadSoundFile = url => {
+    this.xhr = new XMLHttpRequest()
+    this.xhr.open('GET', url, true)
+    this.xhr.responseType = 'arraybuffer' // важно
+    this.xhr.onload = e => {
+      this.setState({ dataLoaded: true, binData: this.xhr.response })
+    }
+    this.xhr.send()
+  }
+
+  playBuffer(decodedArrayBuffer) {
+    // получаем декодированный буфер
+    console.log('this in decodeAudioData/playBuffer', this.context)
+
+    this.buffer = decodedArrayBuffer
+
+    this.play()
+
+    var analyser = this.context.createAnalyser()
+    // Размерность преобразования Фурье
+    // Если не понимаете, что это такое - ставьте 512, 1024 или 2048 ;)
+    analyser.fftSize = 2048
+    // Создаем массивы для хранения данных
+    let fFrequencyData = new Float32Array(analyser.frequencyBinCount)
+    let bFrequencyData = new Uint8Array(analyser.frequencyBinCount)
+    let bTimeData = new Uint8Array(analyser.frequencyBinCount)
+    // Получаем данные
+    analyser.getFloatFrequencyData(fFrequencyData)
+    analyser.getByteFrequencyData(bFrequencyData)
+    analyser.getByteTimeDomainData(bTimeData)
+    // дальше у Вас есть массивы fFrequencyData, bFrequencyData, bTimeData, с которыми можно делать все, что вздумается
+  }
+  // function(e) {
+  //   console.log("Error decoding file", e);
+  // }
+
+  playPcm = pcmBuffer => {
+    console.log('pcmBufferAudData', pcmBuffer.getChannelData(1).length)
+    this.node = this.contextA.createScriptProcessor(2048, 1, 1)
+    //Создаем анализатор
+    this.analyser = this.contextA.createAnalyser()
+    this.analyser.smoothingTimeConstant = 0.3
+    this.analyser.fftSize = 512
+    this.bands = new Uint8Array(this.analyser.frequencyBinCount)
+    let source = this.contextA.createBufferSource()
+    // подключаем буфер к источнику
+    source.buffer = pcmBuffer
+
+    let an=this
+
+    source.connect(an.analyser)
+    //связываем анализатор с интерфейсом, из которого он будет получать данные
+    an.analyser.connect(an.node)
+    //Связываем все с выходом
+    an.node.connect(an.contextA.destination)
+    source.connect(an.contextA.destination)
+    //подписываемся на событие изменения входных данных
+    an.node.onaudioprocess = () =>{
+      an.analyser.getByteFrequencyData(an.bands)
+      let dv=an.bands
+      let dvu=dv.map(x=>{y:x})
+      this.props.cbSetData(an.bands)
+      //console.log('audio!',an.bands)
+    }
+    // дефолтный получатель звука
+    let destination = this.contextA.destination
+    // подключаем источник к получателю
+    source.connect(destination)
+    // воспроизводим
+    source.start(0)
+  }
+
+  // функция остановки воспроизведения
+  stop = () => {
+    source.stop(0)
+  }
+
+  static getDerivedStateFromProps(nextProps, prevState){
+    console.log('getDerivedStateFromProps(nextProps, prevState)')
+  }
+
+  componentDidMount = () => {
+    this.contextA = new window.AudioContext() //
+
+    this.loadSoundFile(
+      'file:///media/460G/v/mus/tracker/Nazareth - Ultimate Bootleg Collection By Purpleshade/1990, 1990.05.13 Dunfermline, Scotland/06. Morning Dew.mp3'
+    )
+  }
+  render = () => {
+    console.log('r,this', this)
+    if (this.state && this.state.dataLoaded) {
+      console.log(this.state)
+      this.contextA.decodeAudioData(this.state.binData, this.playPcm)
+    }
+    return (
+      <div>
+        WebAudioPlayer{this.state && this.state.dataLoaded
+          ? 'dataLoaded'
+          : 'no data'}
+      </div>
+    )
+  }
+}
+
+export default WebAudioPlayer
